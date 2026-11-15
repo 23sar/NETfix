@@ -5,6 +5,7 @@ export const REFRESH_INTERVALS = {
   HEALTH: 15_000,      // 15 seconds for heartbeat
   DASHBOARD: 30_000,   // 30 seconds for historical dashboard status
   EXPERIMENTS: 60_000, // 60 seconds for runs
+  INCIDENTS: 30_000,   // 30 seconds for incidents
 } as const;
 
 export const ROUTE_PATHS = {

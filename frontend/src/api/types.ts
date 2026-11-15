@@ -192,6 +192,124 @@ export interface ExperimentDetailResponse {
   qdisc_samples: QdiscSampleItem[];
 }
 
+// -----------------------------------------------------------------------------
+// Incidents & Congestion Analytics Types
+// -----------------------------------------------------------------------------
+
+export interface IncidentStatistics {
+  total_records: number;
+  congested_count: number;
+  uncongested_count: number;
+  anomaly_count: number;
+  state_counts: Record<string, number>;
+  severity_counts: Record<string, number>;
+  protocol_counts: Record<string, number>;
+  unique_runs_count: number;
+}
+
+export interface IncidentItem {
+  id: string;
+  run_id: number;
+  timestamp_rel_s: number;
+  timestamp_epoch: number;
+  timestamp_iso: string;
+  experiment_id: string;
+  protocol: string;
+  interface_name: string;
+  predicted_state: 'normal' | 'contention' | 'high_queue' | 'saturation' | string;
+  severity: 'none' | 'low' | 'medium' | 'high' | 'critical' | string;
+  is_congested: boolean;
+  evidence_strength: string;
+  triggered_rules: string[];
+  evidence: string[];
+  anomaly_score?: number | null;
+  is_anomaly?: boolean | null;
+  model_version?: string | null;
+  throughput_mbps?: number | null;
+  queue_backlog_packets?: number | null;
+  queue_backlog_bytes?: number | null;
+  qdisc_drops_delta?: number | null;
+  qdisc_drops_cumulative?: number | null;
+  htb_overlimits_delta?: number | null;
+  htb_overlimits_cumulative?: number | null;
+  retransmissions_delta?: number | null;
+  data_source: string;
+  data_mode: DataMode;
+}
+
+export interface PaginatedIncidentsResponse {
+  total: number;
+  page: number;
+  page_size: number;
+  total_pages: number;
+  statistics: IncidentStatistics;
+  items: IncidentItem[];
+}
+
+export interface MLAnomalyPredictionDetail {
+  anomaly_score: number;
+  is_anomaly: boolean;
+  model_version: string;
+  features_evaluated: string[];
+}
+
+export interface RuleEvaluationDetail {
+  predicted_state: string;
+  severity: string;
+  evidence_strength: string;
+  triggered_rules: string[];
+  evidence_statements: string[];
+}
+
+export interface IncidentDataProvenance {
+  detection_source: string;
+  anomaly_source: string;
+  features_source: string;
+  database_source: string;
+  recorded_at_utc?: string | null;
+}
+
+export interface IncidentDetailResponse {
+  incident: IncidentItem;
+  associated_experiment?: ExperimentRunSummary | null;
+  ml_anomaly_prediction?: MLAnomalyPredictionDetail | null;
+  rule_evaluation: RuleEvaluationDetail;
+  data_provenance: IncidentDataProvenance;
+}
+
+export interface IncidentTelemetrySample {
+  sample_index: number;
+  timestamp_rel_s: number;
+  timestamp_epoch: number;
+  delta_t_s: number;
+  interface_name: string;
+  throughput_mbps: number;
+  rx_throughput_mbps: number;
+  queue_backlog_packets: number;
+  queue_backlog_bytes: number;
+  qdisc_drops_cumulative: number;
+  qdisc_drops_delta: number;
+  qdisc_drops_per_s: number;
+  htb_overlimits_cumulative: number;
+  htb_overlimits_delta: number;
+  htb_overlimits_per_s: number;
+  retransmissions_delta?: number | null;
+  is_incident_point: boolean;
+}
+
+export interface IncidentTelemetryResponse {
+  incident_id: string;
+  run_id: number;
+  incident_timestamp_rel_s: number;
+  incident_timestamp_epoch: number;
+  duration_s: number;
+  interface_name: string;
+  samples: IncidentTelemetrySample[];
+  iperf_intervals: IperfIntervalItem[];
+  data_mode: DataMode;
+  provenance: string;
+}
+
 export interface ApiErrorDetail {
   code: string;
   message: string;

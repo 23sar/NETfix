@@ -22,6 +22,7 @@ from netfix.api.routers import (
     dashboard_router,
     experiments_router,
     health_router,
+    incidents_router,
     topology_router,
 )
 
@@ -110,6 +111,7 @@ def create_app() -> FastAPI:
     app.include_router(dashboard_router, prefix=api_v1_prefix)
     app.include_router(topology_router, prefix=api_v1_prefix)
     app.include_router(experiments_router, prefix=api_v1_prefix)
+    app.include_router(incidents_router, prefix=api_v1_prefix)
 
     return app
 
