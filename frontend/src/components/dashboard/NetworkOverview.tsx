@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Card } from '../common/Card';
 import { Badge } from '../common/Badge';
 import { useTopology } from '../../api/hooks/useTopology';
-import { Info } from 'lucide-react';
+import { Info, ArrowRight } from 'lucide-react';
 
 export const NetworkOverview: React.FC = () => {
   const [selectedStage, setSelectedStage] = useState<number>(2);
@@ -36,6 +37,15 @@ export const NetworkOverview: React.FC = () => {
               Stage 2 (Bypass)
             </button>
           </div>
+
+          <Link
+            to="/topology"
+            className="inline-flex items-center gap-1 text-xs text-accent-cyan hover:text-cyan-300 font-medium transition-colors ml-1 px-2 py-1 rounded hover:bg-noc-850"
+            title="Open Interactive Topology Workspace"
+          >
+            <span>Interactive View</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
         </div>
       }
     >
