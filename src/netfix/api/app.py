@@ -7,6 +7,7 @@ Enforces:
 4. No background mutation workers, mininet threads, or controller initialization.
 """
 
+from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 import logging
 import os
@@ -20,13 +21,26 @@ from fastapi.responses import JSONResponse
 from netfix.api.dependencies import get_cors_origins
 from netfix.api.routers import (
     dashboard_router,
+    diagnosis_router,
     experiments_router,
     health_router,
     incidents_router,
     topology_router,
 )
+from netfix.api.routers.diagnosis import get_diagnosis_store
 
 logger = logging.getLogger("netfix.api")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """FastAPI application lifespan managing startup verification and clean shutdown."""
+    yield
+    # Shutdown: cleanly close SQLite checkpointer connection
+    try:
+        get_diagnosis_store().close()
+    except Exception as exc:
+        logger.warning("Error during diagnosis store shutdown: %s", exc)
 
 
 def create_app() -> FastAPI:
@@ -41,6 +55,7 @@ def create_app() -> FastAPI:
         docs_url="/docs",
         redoc_url="/redoc",
         openapi_url="/openapi.json",
+        lifespan=lifespan,
     )
 
     # 1. Configure CORS
@@ -112,6 +127,7 @@ def create_app() -> FastAPI:
     app.include_router(topology_router, prefix=api_v1_prefix)
     app.include_router(experiments_router, prefix=api_v1_prefix)
     app.include_router(incidents_router, prefix=api_v1_prefix)
+    app.include_router(diagnosis_router, prefix=api_v1_prefix)
 
     return app
 

@@ -310,6 +310,74 @@ export interface IncidentTelemetryResponse {
   provenance: string;
 }
 
+// -----------------------------------------------------------------------------
+// AI Diagnosis Types (Milestone 4)
+// -----------------------------------------------------------------------------
+
+export interface CreateDiagnosisRequest {
+  incident_id: string;
+  operator?: string;
+}
+
+export interface ProposedActionDetail {
+  action_id: string;
+  action_type: string;
+  target_switch: string;
+  target_interface: string;
+  parameters: Record<string, unknown>;
+  rationale: string;
+  rollback_plan: string;
+  risk_level: string;
+  topology_status: string;
+  unsupported_advisory_action?: Record<string, unknown> | null;
+}
+
+export interface RunbookRetrievalItem {
+  runbook_id: string;
+  title: string;
+  score: number;
+  relevant_sections: string[];
+  content?: string | null;
+  source_file?: string | null;
+}
+
+export interface DiagnosisRunDetailResponse {
+  thread_id: string;
+  incident_id: string;
+  run_id: number;
+  timestamp_rel_s: number;
+  status: 'INTERRUPTED_AWAITING_APPROVAL' | 'NO_ACTION_REQUIRED' | 'COMPLETED' | 'FAILED' | string;
+  current_node: string;
+  completed_nodes: string[];
+  is_actionable: boolean;
+  root_cause: string | null;
+  diagnosis_summary: string | null;
+  evidence_strength: 'low' | 'moderate' | 'high' | string;
+  proposed_action: ProposedActionDetail | null;
+  action_hash: string | null;
+  approval_status: string;
+  retrieved_runbooks_count: number;
+  created_at_utc: string;
+  evidence_metrics: Record<string, unknown>;
+}
+
+export interface DiagnosisRunSummary {
+  thread_id: string;
+  incident_id: string;
+  run_id: number;
+  timestamp_rel_s: number;
+  status: string;
+  root_cause?: string | null;
+  action_type?: string | null;
+  created_at_utc: string;
+}
+
+export interface DiagnosisRunbooksResponse {
+  thread_id: string;
+  runbooks: RunbookRetrievalItem[];
+}
+
+// -----------------------------------------------------------------------------
 export interface ApiErrorDetail {
   code: string;
   message: string;

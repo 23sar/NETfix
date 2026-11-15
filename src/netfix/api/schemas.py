@@ -373,6 +373,86 @@ class IncidentTelemetryResponse(BaseModel):
 
 
 # -----------------------------------------------------------------------------
+# AI Diagnosis Schemas (Milestone 4)
+# -----------------------------------------------------------------------------
+
+
+class CreateDiagnosisRequest(BaseModel):
+    """Request payload to initiate an advisory M4 diagnosis workflow."""
+
+    incident_id: str = Field(..., description="Target historical incident ID (e.g. inc-1-3.001)")
+    operator: Optional[str] = Field(default="netops", description="Operator identity for diagnosis audit trail")
+
+
+class ProposedActionDetail(BaseModel):
+    """Structured remediation action proposed by the M4 advisory agent."""
+
+    action_id: str
+    action_type: str
+    target_switch: str
+    target_interface: str
+    parameters: Dict[str, Any] = Field(default_factory=dict)
+    rationale: str
+    rollback_plan: str
+    risk_level: str
+    topology_status: str
+    unsupported_advisory_action: Optional[Dict[str, Any]] = None
+
+
+class RunbookRetrievalItem(BaseModel):
+    """Advisory RAG runbook retrieved during diagnosis investigation."""
+
+    runbook_id: str
+    title: str
+    score: float
+    relevant_sections: List[str] = Field(default_factory=list)
+    content: Optional[str] = None
+    source_file: Optional[str] = None
+
+
+class DiagnosisRunDetailResponse(BaseModel):
+    """Complete diagnostic dossier and LangGraph execution state."""
+
+    thread_id: str
+    incident_id: str
+    run_id: int
+    timestamp_rel_s: float
+    status: str
+    current_node: str
+    completed_nodes: List[str] = Field(default_factory=list)
+    is_actionable: bool
+    root_cause: Optional[str] = None
+    diagnosis_summary: Optional[str] = None
+    evidence_strength: str = "moderate"
+    proposed_action: Optional[ProposedActionDetail] = None
+    action_hash: Optional[str] = None
+    approval_status: str = "PENDING"
+    retrieved_runbooks_count: int = 0
+    created_at_utc: str
+    evidence_metrics: Dict[str, Any] = Field(default_factory=dict)
+
+
+class DiagnosisRunSummary(BaseModel):
+    """Compact summary of a diagnosis execution."""
+
+    thread_id: str
+    incident_id: str
+    run_id: int
+    timestamp_rel_s: float
+    status: str
+    root_cause: Optional[str] = None
+    action_type: Optional[str] = None
+    created_at_utc: str
+
+
+class DiagnosisRunbooksResponse(BaseModel):
+    """Runbooks retrieved during a specific diagnosis execution."""
+
+    thread_id: str
+    runbooks: List[RunbookRetrievalItem] = Field(default_factory=list)
+
+
+# -----------------------------------------------------------------------------
 # Standardized Error Schemas
 # -----------------------------------------------------------------------------
 

@@ -83,3 +83,58 @@ export async function getJson<T>(endpoint: string, params?: Record<string, strin
     );
   }
 }
+
+/**
+ * Perform a strictly validated POST request to the NETfix API.
+ * Used exclusively for explicit advisory operations (such as starting an M4 diagnosis).
+ */
+export async function postJson<T>(endpoint: string, body?: unknown): Promise<T> {
+  const url = new URL(`${API_BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`);
+
+  try {
+    const response = await fetch(url.toString(), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+    });
+
+    if (!response.ok) {
+      let errPayload: ApiErrorResponse | null = null;
+      try {
+        errPayload = await response.json();
+      } catch {
+        // Not JSON
+      }
+
+      if (errPayload && errPayload.error) {
+        throw new ApiError(
+          errPayload.error.message || `API error ${response.status}`,
+          errPayload.error.code || `HTTP_${response.status}`,
+          response.status,
+          errPayload.error.details
+        );
+      }
+
+      throw new ApiError(
+        `Request failed with status ${response.status}: ${response.statusText}`,
+        `HTTP_${response.status}`,
+        response.status
+      );
+    }
+
+    return (await response.json()) as T;
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    const msg = error instanceof Error ? error.message : 'Unknown network error';
+    throw new ApiError(
+      `Failed to connect to NETfix API (${url.origin}): ${msg}`,
+      'NETWORK_ERROR',
+      0
+    );
+  }
+}

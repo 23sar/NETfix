@@ -26,6 +26,12 @@ def get_data_dir() -> Path:
     return Path(os.environ.get("NETFIX_DATA_DIR", "data"))
 
 
+def get_diagnosis_db_path() -> Path:
+    """Return configured path to diagnosis checkpoints SQLite database."""
+    default_p = get_data_dir() / "diagnosis_checkpoints.db"
+    return Path(os.environ.get("NETFIX_DIAGNOSIS_DB_PATH", str(default_p)))
+
+
 def get_read_only_connection(
     db_path: Optional[str] = None,
 ) -> Generator[sqlite3.Connection, None, None]:

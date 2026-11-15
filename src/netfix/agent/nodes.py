@@ -167,6 +167,7 @@ def investigate_node(state: DiagnosticState) -> Dict[str, Any]:
                 traffic_profile["total_qdisc_drops"] = (
                     max(drops_vals) - min(drops_vals) if drops_vals else 0
                 )
+                traffic_profile["total_drops"] = traffic_profile["total_qdisc_drops"]
                 traffic_profile["total_overlimits"] = (
                     max(overlimits_vals) - min(overlimits_vals) if overlimits_vals else 0
                 )
