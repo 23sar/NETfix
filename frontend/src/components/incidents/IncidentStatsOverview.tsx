@@ -106,7 +106,7 @@ export const IncidentStatsOverview: React.FC<IncidentStatsOverviewProps> = ({
             {saturationCount}
           </div>
           <div className="mt-1 text-[11px] text-rose-400/80">
-            Drops &ge; 1 or Backlog &ge; 40
+            Drops ≥ 1 or Backlog ≥ 40
           </div>
         </button>
 
@@ -127,7 +127,7 @@ export const IncidentStatsOverview: React.FC<IncidentStatsOverviewProps> = ({
             {highQueueCount}
           </div>
           <div className="mt-1 text-[11px] text-amber-400/80">
-            Backlog &ge; 15, Drops = 0
+            Backlog ≥ 15, Drops = 0
           </div>
         </button>
 
@@ -169,7 +169,7 @@ export const IncidentStatsOverview: React.FC<IncidentStatsOverviewProps> = ({
             {normalCount}
           </div>
           <div className="mt-1 text-[11px] text-emerald-400/80">
-            Backlog &le; 3, Drops = 0
+            Backlog ≤ 3, Drops = 0
           </div>
         </button>
 

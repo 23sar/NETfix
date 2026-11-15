@@ -162,7 +162,7 @@ export const IncidentTelemetryCharts: React.FC<IncidentTelemetryChartsProps> = (
             <Gauge className="w-4 h-4 text-amber-400" />
             <span className="font-semibold text-noc-100">Root Qdisc Queue Backlog (Packets)</span>
             <span className="text-[11px] text-noc-400 font-mono">
-              [Limit: 50 pkts | Saturation &ge; 40 pkts]
+              [Limit: 50 pkts | Saturation ≥ 40 pkts]
             </span>
           </div>
           <span className="text-[11px] font-mono text-amber-400">

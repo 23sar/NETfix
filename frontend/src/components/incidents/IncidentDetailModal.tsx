@@ -62,7 +62,7 @@ export const IncidentDetailModal: React.FC<IncidentDetailModalProps> = ({
                 )}
               </div>
               <p className="text-xs text-noc-400 mt-0.5">
-                Run #{incident?.run_id} ({incident?.experiment_id}) &bull; Offset:{' '}
+                Run #{incident?.run_id} ({incident?.experiment_id}) • Offset:{' '}
                 <span className="font-mono text-noc-200">+{incident?.timestamp_rel_s.toFixed(3)}s</span>
               </p>
             </div>
@@ -246,7 +246,7 @@ export const IncidentDetailModal: React.FC<IncidentDetailModalProps> = ({
                           key={idx}
                           className="p-3 bg-noc-950/40 border border-noc-800/80 rounded-lg text-noc-300 font-mono text-[11px]"
                         >
-                          &bull; {stmt}
+                          • {stmt}
                         </div>
                       ))}
                     </div>
@@ -336,7 +336,7 @@ export const IncidentDetailModal: React.FC<IncidentDetailModalProps> = ({
                       <div className="p-3 bg-noc-950/60 border border-noc-800 rounded-lg">
                         <span className="text-noc-400">Sender & Receiver</span>
                         <div className="font-mono font-semibold text-noc-100 mt-0.5">
-                          {exp.sender} &rarr; {exp.receiver}
+                          {exp.sender} → {exp.receiver}
                         </div>
                       </div>
 
