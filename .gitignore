@@ -1,0 +1,33 @@
+# Python & Virtual Environments
+.venv/
+__pycache__/
+*.py[cod]
+.env
+.pytest_cache/
+.ruff_cache/
+*.log
+.DS_Store
+
+# Editor
+.vscode/
+
+# Node & Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+
+# Databases & Runtime Data (Protect project data)
+data/*.db
+data/*.db-*
+data/*.db.bak
+data/raw/
+data/processed/
+data/calibration/
+data/rollback_records/
+data/verification_reports/
+
+# Keep runbooks
+!data/runbooks/
+!data/runbooks/*.md
