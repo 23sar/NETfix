@@ -1,85 +1,157 @@
-import React from 'react';
-import { Card } from '../components/common/Card';
-import { Wrench, ShieldAlert, KeyRound, RotateCcw } from 'lucide-react';
-import { Badge } from '../components/common/Badge';
+import React, { useState } from 'react';
+import { Wrench, RefreshCw, ShieldCheck, AlertCircle } from 'lucide-react';
+import { RemediationSafetyBanner } from '../components/remediation/RemediationSafetyBanner';
+import { RemediationStatsOverview } from '../components/remediation/RemediationStatsOverview';
+import { PendingApprovalQueue } from '../components/remediation/PendingApprovalQueue';
+import { TransactionListTable } from '../components/remediation/TransactionListTable';
+import { TransactionDetailModal } from '../components/remediation/TransactionDetailModal';
+import {
+  useRemediationSummary,
+  usePendingApprovals,
+  useTransactions,
+  useTransactionDetail,
+  useTransactionVerification,
+  useTransactionRollback,
+} from '../api/hooks/useRemediation';
 
 export const RemediationPage: React.FC = () => {
+  const [selectedTxnId, setSelectedTxnId] = useState<string | null>(null);
+
+  // Queries
+  const {
+    data: summary,
+    isLoading: isLoadingSummary,
+    error: summaryError,
+    refetch: refetchSummary,
+  } = useRemediationSummary();
+
+  const {
+    data: pendingApprovals,
+    isLoading: isLoadingPending,
+    error: pendingError,
+    refetch: refetchPending,
+  } = usePendingApprovals();
+
+  const {
+    data: transactions,
+    isLoading: isLoadingTransactions,
+    error: transactionsError,
+    refetch: refetchTransactions,
+  } = useTransactions();
+
+  // Detail Queries for selected modal
+  const {
+    data: txnDetail,
+    isLoading: isLoadingDetail,
+  } = useTransactionDetail(selectedTxnId);
+
+  const {
+    data: verificationReport,
+    isLoading: isLoadingVerification,
+  } = useTransactionVerification(selectedTxnId);
+
+  const {
+    data: rollbackReport,
+    isLoading: isLoadingRollback,
+  } = useTransactionRollback(selectedTxnId);
+
+  const handleRefreshAll = () => {
+    refetchSummary();
+    refetchPending();
+    refetchTransactions();
+  };
+
+  const hasAnyError = summaryError || pendingError || transactionsError;
+
   return (
-    <div className="space-y-6">
-      <div className="p-4 rounded-lg bg-noc-900 border border-noc-800 flex items-center justify-between">
+    <div className="space-y-6 pb-12">
+      {/* Header bar */}
+      <div className="p-4 rounded-lg bg-noc-900 border border-noc-800 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="p-2.5 rounded-md bg-noc-850 text-emerald-400 border border-noc-800">
             <Wrench className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-sm font-semibold text-noc-100">Remediation & Rollback Architecture</h2>
+            <div className="flex items-center gap-2">
+              <h2 className="text-base font-semibold text-noc-100">Remediation Center & Safety Ledger</h2>
+              <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                Milestone 5 Audited
+              </span>
+            </div>
             <p className="text-xs text-noc-400">
-              Safety-critical execution controller, cryptographic approval tokens, and closed-loop verification
+              Read-only inspection and audit console for persisted remediation records, cryptographic approval tracking, verification telemetry, and atomic rollback ledger. Live actuation POST controls remain disabled.
             </p>
           </div>
         </div>
-        <Badge variant="healthy" size="sm">Milestone 5 Safety Invariants Active</Badge>
-      </div>
 
-      <Card
-        title="Safety-Gated Human-In-The-Loop (HITL) Protocol"
-        subtitle="Zero mutations permitted without cryptographic approval verification"
-      >
-        <div className="p-6 bg-noc-950/60 rounded-lg border border-noc-800 text-center max-w-2xl mx-auto space-y-4">
-          <div className="flex justify-center">
-            <div className="p-3 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-              <KeyRound className="w-8 h-8" />
-            </div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleRefreshAll}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-noc-800 hover:bg-noc-750 text-noc-200 text-xs font-medium border border-noc-700/60 transition-colors"
+            title="Refresh remediation ledger from disk"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+            <span>Refresh Ledger</span>
+          </button>
+          <div className="flex items-center gap-1.5 text-xs text-noc-400 font-mono">
+            <ShieldCheck className="w-4 h-4 text-emerald-400" />
+            <span>Read-Only Audit Mode</span>
           </div>
-          <h3 className="text-base font-semibold text-noc-100">Remediation Engine Currently Gated</h3>
-          <p className="text-xs text-noc-400 leading-relaxed">
-            In accordance with Milestone 5 security audits (SEC-M5-01 through SEC-M5-08), network mutating actions require a cryptographic SHA-256 single-use token, state-machine pre-validation, and an automatic inverse rollback transaction log.
-          </p>
-          <div className="pt-2 flex flex-wrap justify-center gap-2 text-xs font-mono">
-            <span className="px-2.5 py-1 rounded bg-noc-850 text-noc-300 border border-noc-800">
-              ADJUST_QUEUE_LIMIT (Safe)
-            </span>
-            <span className="px-2.5 py-1 rounded bg-noc-850 text-noc-300 border border-noc-800">
-              REROUTE_FLOW_BYPASS (Safe)
-            </span>
-            <span className="px-2.5 py-1 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20">
-              RATE_LIMIT_SOURCE (Disabled)
-            </span>
-          </div>
-        </div>
-      </Card>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-        <div className="p-4 rounded-lg bg-noc-900 border border-noc-800">
-          <div className="flex items-center gap-2 font-semibold text-noc-200 mb-1">
-            <ShieldAlert className="w-4 h-4 text-amber-400" />
-            M5 Validation Pre-Checks
-          </div>
-          <p className="text-noc-400 leading-relaxed">
-            Every proposed action is checked against topology feasibility, parameter safety boundaries, and source isolation constraints.
-          </p>
-        </div>
-
-        <div className="p-4 rounded-lg bg-noc-900 border border-noc-800">
-          <div className="flex items-center gap-2 font-semibold text-noc-200 mb-1">
-            <RotateCcw className="w-4 h-4 text-rose-400" />
-            Atomic Rollback Engine
-          </div>
-          <p className="text-noc-400 leading-relaxed">
-            Inverse commands are generated and persisted to disk before any command executes. Rollback automatically executes on verification failure.
-          </p>
-        </div>
-
-        <div className="p-4 rounded-lg bg-noc-900 border border-noc-800">
-          <div className="flex items-center gap-2 font-semibold text-noc-200 mb-1">
-            <Wrench className="w-4 h-4 text-emerald-400" />
-            Closed-Loop Verification
-          </div>
-          <p className="text-noc-400 leading-relaxed">
-            Post-remediation verifier collects fresh telemetry to prove congestion relief before declaring an action VERIFIED.
-          </p>
         </div>
       </div>
+
+      {/* Global Error Banner if API is unreachable */}
+      {hasAnyError && (
+        <div className="p-3.5 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-center gap-3 text-xs text-rose-300">
+          <AlertCircle className="w-5 h-5 text-rose-400 flex-shrink-0" />
+          <div>
+            <p className="font-semibold text-rose-200">Unable to load complete remediation ledger</p>
+            <p className="text-[11px] text-rose-400">
+              Ensure the FastAPI backend daemon is running at http://127.0.0.1:8000 and data/ rollback directories exist.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Safety & Invariant Status Banner */}
+      <RemediationSafetyBanner summary={summary} isLoading={isLoadingSummary} />
+
+      {/* Stats Overview */}
+      <RemediationStatsOverview summary={summary} isLoading={isLoadingSummary} />
+
+      {/* Pending Approvals Section */}
+      <PendingApprovalQueue pendingItems={pendingApprovals} isLoading={isLoadingPending} />
+
+      {/* Historical Transactions Ledger */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xs font-semibold text-noc-200 uppercase tracking-wide">
+            Remediation Transaction History & Audit Ledger
+          </h3>
+          <span className="text-[11px] text-noc-500 font-mono">
+            Persisted under data/rollback_records/
+          </span>
+        </div>
+        <TransactionListTable
+          transactions={transactions || []}
+          selectedTxnId={selectedTxnId}
+          onSelectTxn={(id) => setSelectedTxnId(id)}
+          isLoading={isLoadingTransactions}
+        />
+      </div>
+
+      {/* Transaction Detail Modal */}
+      {selectedTxnId && (
+        <TransactionDetailModal
+          transaction={txnDetail}
+          verification={verificationReport}
+          rollback={rollbackReport}
+          isLoadingDetail={isLoadingDetail}
+          isLoadingVerification={isLoadingVerification}
+          isLoadingRollback={isLoadingRollback}
+          onClose={() => setSelectedTxnId(null)}
+        />
+      )}
     </div>
   );
 };

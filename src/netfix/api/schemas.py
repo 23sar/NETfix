@@ -453,6 +453,156 @@ class DiagnosisRunbooksResponse(BaseModel):
 
 
 # -----------------------------------------------------------------------------
+# Remediation Center Schemas (Milestone 5)
+# -----------------------------------------------------------------------------
+
+
+class RemediationSummaryResponse(BaseModel):
+    """Aggregated status of remediation operations, approvals, and safety gates."""
+
+    total_transactions: int
+    pending_approvals_count: int
+    consumed_approvals_count: int = 0
+    in_progress_count: int
+    verified_count: int
+    rolled_back_count: int
+    failed_unresolved_count: int
+    executor_mode: str
+    live_execution_allowed: bool = False
+    startup_recovery_gated: bool = True
+    rate_limit_source_disabled: bool = True
+    is_read_only_api: bool = True
+
+
+class PendingApprovalItem(BaseModel):
+    """Diagnostic proposal awaiting human operator authorization before entering M5."""
+
+    thread_id: str
+    incident_id: str
+    run_id: int
+    action_type: str
+    target_switch: str
+    target_interface: Optional[str] = None
+    created_at_utc: str
+    approval_status: str = "AWAITING_OPERATOR_APPROVAL"
+    source: str = "M4_DIAGNOSTIC_PROPOSAL"
+    m5_validation_status: str = "NOT_SUBMITTED"
+    m5_execution_status: str = "GATED"
+    parameters: Dict[str, Any] = Field(default_factory=dict)
+    rationale: str
+    action_hash: str
+
+
+class ConsumedApprovalRecord(BaseModel):
+    """Durable approval record from M5 consumed_tokens ledger (token hash strictly omitted)."""
+
+    action_hash: str
+    action_type: str
+    target_switch: str
+    target_interface: Optional[str] = None
+    parameters_json: str
+    topology_stage: int
+    topology_name: Optional[str] = None
+    expiry_timestamp: str
+    consumed_at: str
+
+
+class SanitizedInverseOp(BaseModel):
+    """Sanitized description of an inverse restoration operation without raw shell strings."""
+
+    op_type: str
+    description: str
+    expected_verification_pattern: Optional[str] = None
+
+
+class RemediationTransactionSummary(BaseModel):
+    """Summary of a recorded remediation transaction."""
+
+    transaction_id: str
+    action_type: str
+    target_switch: str
+    target_interface: Optional[str] = None
+    created_at: str
+    status: str
+    verification_state: Optional[str] = None
+    has_rollback_plan: bool = True
+
+
+class RemediationTransactionDetail(BaseModel):
+    """Complete detail of a recorded remediation transaction."""
+
+    transaction_id: str
+    action_type: str
+    target_switch: str
+    target_interface: Optional[str] = None
+    proposed_parameters: Dict[str, Any] = Field(default_factory=dict)
+    created_at: str
+    status: str
+    inverse_operations_summary: List[SanitizedInverseOp] = Field(default_factory=list)
+    verification_deadline_utc: Optional[str] = None
+    persisted_path: Optional[str] = None
+
+
+class VerificationCheckItem(BaseModel):
+    """Individual verification check result."""
+
+    name: str
+    category: str
+    passed: bool
+    expected: Any
+    observed: Any
+    message: str
+
+
+class VerificationTelemetryComparison(BaseModel):
+    """Pre- and post-remediation telemetry comparison metrics."""
+
+    is_valid: bool
+    is_fresh: bool
+    observation_window_s: Optional[float] = None
+    pre_backlog_packets: Optional[int] = None
+    post_backlog_packets: Optional[int] = None
+    pre_drops: Optional[int] = None
+    post_drops: Optional[int] = None
+    pre_overlimits: Optional[int] = None
+    post_overlimits: Optional[int] = None
+    congestion_relieved: bool = False
+    performance_outcome: Optional[str] = None
+
+
+class VerificationReportResponse(BaseModel):
+    """Complete independent verification report."""
+
+    transaction_id: str
+    action_type: str
+    target_switch: str
+    target_interface: Optional[str] = None
+    state: str
+    configuration_verified: bool
+    performance_verified: bool
+    performance_outcome: Optional[str] = None
+    checks: List[VerificationCheckItem] = Field(default_factory=list)
+    telemetry_comparison: Optional[VerificationTelemetryComparison] = None
+    failure_reasons: List[str] = Field(default_factory=list)
+    created_at: str
+    completed_at: Optional[str] = None
+
+
+class RollbackReportResponse(BaseModel):
+    """Summary of rollback restoration status for a transaction."""
+
+    transaction_id: str
+    action_type: str
+    target_switch: str
+    target_interface: Optional[str] = None
+    status: str
+    inverse_operations: List[SanitizedInverseOp] = Field(default_factory=list)
+    completed_inverse_ops_count: int
+    restoration_verified: bool
+    error_message: Optional[str] = None
+
+
+# -----------------------------------------------------------------------------
 # Standardized Error Schemas
 # -----------------------------------------------------------------------------
 

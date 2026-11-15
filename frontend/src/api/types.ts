@@ -378,6 +378,134 @@ export interface DiagnosisRunbooksResponse {
 }
 
 // -----------------------------------------------------------------------------
+// Remediation Center Types (Milestone 5)
+// -----------------------------------------------------------------------------
+
+export interface RemediationSummaryResponse {
+  total_transactions: number;
+  pending_approvals_count: number;
+  consumed_approvals_count?: number;
+  in_progress_count: number;
+  verified_count: number;
+  rolled_back_count: number;
+  failed_unresolved_count: number;
+  executor_mode: string;
+  live_execution_allowed: boolean;
+  startup_recovery_gated: boolean;
+  rate_limit_source_disabled: boolean;
+  is_read_only_api: boolean;
+}
+
+export interface SanitizedInverseOp {
+  op_type: string;
+  description: string;
+  expected_verification_pattern?: string | null;
+}
+
+export interface RemediationTransactionSummary {
+  transaction_id: string;
+  action_type: string;
+  target_switch: string;
+  target_interface?: string | null;
+  created_at: string;
+  status: string;
+  verification_state?: string | null;
+  has_rollback_plan: boolean;
+}
+
+export interface RemediationTransactionDetail {
+  transaction_id: string;
+  action_type: string;
+  target_switch: string;
+  target_interface?: string | null;
+  proposed_parameters: Record<string, unknown>;
+  created_at: string;
+  status: string;
+  inverse_operations_summary: SanitizedInverseOp[];
+  verification_deadline_utc?: string | null;
+  persisted_path?: string | null;
+}
+
+export interface VerificationCheckItem {
+  name: string;
+  category: string;
+  passed: boolean;
+  expected: unknown;
+  observed: unknown;
+  message: string;
+}
+
+export interface VerificationTelemetryComparison {
+  is_valid: boolean;
+  is_fresh: boolean;
+  observation_window_s?: number | null;
+  pre_backlog_packets?: number | null;
+  post_backlog_packets?: number | null;
+  pre_drops?: number | null;
+  post_drops?: number | null;
+  pre_overlimits?: number | null;
+  post_overlimits?: number | null;
+  congestion_relieved: boolean;
+  performance_outcome?: string | null;
+}
+
+export interface VerificationReportResponse {
+  transaction_id: string;
+  action_type: string;
+  target_switch: string;
+  target_interface?: string | null;
+  state: string;
+  configuration_verified: boolean;
+  performance_verified: boolean;
+  performance_outcome?: string | null;
+  checks: VerificationCheckItem[];
+  telemetry_comparison?: VerificationTelemetryComparison | null;
+  failure_reasons: string[];
+  created_at: string;
+  completed_at?: string | null;
+}
+
+export interface RollbackReportResponse {
+  transaction_id: string;
+  action_type: string;
+  target_switch: string;
+  target_interface?: string | null;
+  status: string;
+  inverse_operations: SanitizedInverseOp[];
+  completed_inverse_ops_count: number;
+  restoration_verified: boolean;
+  error_message?: string | null;
+}
+
+export interface PendingApprovalItem {
+  thread_id: string;
+  incident_id: string;
+  run_id: number;
+  action_type: string;
+  target_switch: string;
+  target_interface?: string | null;
+  created_at_utc: string;
+  approval_status: string;
+  source?: string;
+  m5_validation_status?: string;
+  m5_execution_status?: string;
+  parameters: Record<string, unknown>;
+  rationale: string;
+  action_hash: string;
+}
+
+export interface ConsumedApprovalRecord {
+  action_hash: string;
+  action_type: string;
+  target_switch: string;
+  target_interface?: string | null;
+  parameters_json: string;
+  topology_stage: number;
+  topology_name?: string | null;
+  expiry_timestamp: string;
+  consumed_at: string;
+}
+
 export interface ApiErrorDetail {
   code: string;
   message: string;

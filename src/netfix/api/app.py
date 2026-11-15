@@ -25,6 +25,7 @@ from netfix.api.routers import (
     experiments_router,
     health_router,
     incidents_router,
+    remediation_router,
     topology_router,
 )
 from netfix.api.routers.diagnosis import get_diagnosis_store
@@ -128,6 +129,7 @@ def create_app() -> FastAPI:
     app.include_router(experiments_router, prefix=api_v1_prefix)
     app.include_router(incidents_router, prefix=api_v1_prefix)
     app.include_router(diagnosis_router, prefix=api_v1_prefix)
+    app.include_router(remediation_router, prefix=api_v1_prefix)
 
     return app
 
